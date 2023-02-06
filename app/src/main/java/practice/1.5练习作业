@@ -1,0 +1,143 @@
+1、主要是三个方法 onMeasure \ onLayout \onDraw
+ViewRootImpl 负责Activity整个GUI的绘制，从performTraversals（）开始，
+private void performTraversals(){
+//测量组件的大小
+    performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+    //子组件的定位
+    performLayout(lp,desiredWindowWidth ,desiredWindowHeight);
+    //绘制组件的外观
+    performDraw();
+
+}
+
+private void performMeasure(int childWidthMeasureSpec ,int childHeightMeasureSpec){
+    mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
+public final void measure(int widthMeasureSpec ,int heightMeasureSpec){
+//为组件尺寸的测量预留的功能接口
+    onMeasure(widthMeasureSpec,heightMeasureSpec);
+}
+
+private performLayout(WindowManager.LayoutParams lp,int desiredWindowWidth ,int desiredWindowHeight){
+    //host 是view树的根视图DecorView
+    host.layout(0,0,host.getMeasuredWidth(),host.getMeasuredHeight());
+    for(int i= 0 ;i<numValidRequests;++i){
+        final View view = validLayoutRequesters.get(i);
+        view.requestLayout();
+    }
+}
+
+public void layout(int l,int t,int r,int b){
+    if(mPrivateFlags3 &PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT)!=0){
+        onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+        mPrivateFlags3 &=~PFLAG3_MESURE_NEEDED_BEFORE_LAYOUT;
+    }
+    int oldL = mLeft ;
+    int oldT = mTop ;
+    int oldB = mBottom ;
+    int oldR = mRight ;
+    boolean changed = isLayoutModeOptical(mParent)?setOpticalFrame(l,t,r,b) :setFrame(l,t,r,b);
+    if(changed || (mPrvateFlags & PFLAG_LAYOUT_REQUIRED == PFLAGE_LAYOUT_REQUIRED){
+        onLayout(changed,l,t,r,b);
+    }
+    }
+
+private void performDraw(){
+    final boolean fullRedrawNeeded = mFullRedrawNeeded ;
+    mFullRedrawNeeded = false ;
+    mIsDrawing = true ;
+    try{
+        draw(fullRedrawNeeded);
+    }finally{
+        mIsDrawing = false ;
+    }
+}
+private void draw(boolean fullRedrawNeeded){
+    if(!drawSoftWare(surface,mAttachInfo,xOffset ,yOffset,scalinRequired,dirty)){
+        return;
+    }
+}
+private boolean drawSoftWare(Surface surface ,AttachInfo attachInfo ,int xoff,int yoff,boolean scalingRequired ,Rect dirty){
+    final Canvas canvas ;
+    final int left = dirty.left ;
+    final int top = dirty.top ;
+    final int right = dirty.right ;
+    final int bottom = dirty.bottom ;
+    cavas = mSurface.lockCanvas(dirty);
+    if(!canvas.isOpaque()||yoff != 0 || xoff != 0){
+        canvas.drawColor(0,PorterDuff.Mode.CLEAR);
+    }
+    mView.draw(canvas);
+    surface.unlockCanvasAndPost(canvas);
+}
+
+public void draw(Canvas canvas){
+    super.draw(canvas);
+    final Drawable foreground = mForeground ;
+    foreground.draw(canvas);
+}
+public void draw(Canvas canvas){
+    background.draw(canvas); //绘制背景
+    if(!dirtyOpaque)onDraw(canvas); //绘制自己
+    dispatchDraw(canvas); //绘制子视图
+    onDrawScrollBars(canvas); //绘制滚动条
+}
+
+protectd void dispatchDraw(Canvas canvas){
+    final int count = mChildrenCount ;
+    final View[] children = mChildren ;
+    for(int i= 0 ;i<count ,i++){
+        final View child = children[i];
+        if((child.mViewFlags &VISIBILITY_MASK) == VISIBLE || child.getAnimation() != null){
+            mored |=drawChild(canvas ,child ,drawingTime);
+        }
+    }
+}
+protected boolean drawChild(Canvas canvas ,View child ,long drawingTime){
+    return child.draw(canvas ,this ,drawingTime) ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,22 @@
+<resources>
+    <declare-styleable name="SwitchView">
+        <attr name="hasShadow" format="boolean"/>
+        <attr name="primaryColor" format="color"/>
+        <attr name="primaryColorDark" format="color"/>
+        <attr name="offColor" format="color"/>
+        <attr name="offColorDark" format="color"/>
+        <attr name="barColor" format="color"/>
+        <attr name="bgColor" format="color"/>
+        <attr name="shadowColor" format="color"/>
+        <attr name="ratioAspect" format="float"/>
+        <attr name="isOpened" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="FirstView">
+        <attr name="android:gravity" format="flags"/>
+        <attr name="c" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="CircleImageView">
+        <attr name="circle_border" format="dimension"></attr>
+        <attr name="circle_border_color" format="color"></attr>
+    </declare-styleable>
+</resources>
