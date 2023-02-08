@@ -7,20 +7,42 @@
     tools:context=".demo.TestSwitchViewActivity">
     <com.example.zujianapplication.demo.SwitchView
         android:id="@+id/sv"
+        app:isOpened="true"
+        app:hasShadow="true"
+        android:layout_width="51dp"
+        android:layout_height="31dp"
+        tools:ignore="MissingConstraints" />
+    <com.example.zujianapplication.demo.SwitchView
+        android:id="@+id/sv2"
         app:isOpened="false"
         app:hasShadow="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sv"
+        android:layout_width="51dp"
+        android:layout_height="31dp"
+        tools:ignore="MissingConstraints" />
+    <com.example.zujianapplication.demo.SwitchView
+        android:id="@+id/sv3"
+        app:isOpened="true"
+        app:hasShadow="true"
+        app:layout_constraintTop_toBottomOf="@id/sv2"
+        app:primaryColor="#FF0058FF"
+        android:layout_width="51dp"
+        android:layout_height="31dp"
+        tools:ignore="MissingConstraints" />
+    <com.example.zujianapplication.demo.SwitchView
+        android:id="@+id/sv4"
+        app:layout_constraintTop_toBottomOf="@id/sv3"
+        app:isOpened="true"
+        app:hasShadow="true"
+        app:primaryColor="#FF6C00FF"
         android:layout_width="51dp"
         android:layout_height="31dp"
         tools:ignore="MissingConstraints" />
 
     <Button
-        android:id="@+id/test"
-        android:text="测试"
-        app:layout_constraintTop_toBottomOf="@id/sv"
+        android:id="@+id/bt1"
+        android:text="测试禁用效果"
+        app:layout_constraintTop_toBottomOf="@id/sv4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:ignore="MissingConstraints" />

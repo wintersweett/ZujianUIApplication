@@ -10,10 +10,7 @@ import android.graphics.Path;
 import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.SweepGradient;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -23,9 +20,6 @@ import android.view.animation.AccelerateInterpolator;
 
 import com.example.zujianuiapplication.R;
 
-/**
- * hei hei hei
- */
 public class SwitchView extends View {
 
     private static final int STATE_SWITCH_ON = 4;
@@ -82,9 +76,14 @@ public class SwitchView extends View {
     public SwitchView(Context context) {
         this(context, null);
     }
+
     public void setCanTouchSwitch(boolean canTouch) {
         this.canTouch = canTouch;
     }
+    public boolean isCanTouch(){
+        return canTouch ;
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public SwitchView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -400,7 +399,7 @@ public class SwitchView extends View {
         // Use center bar path to draw shadow
         if (hasShadow) {
             paint.setStyle(Paint.Style.FILL);
-            paint.setShadowLayer(bRadius,0,3,Color.parseColor("#0F000000"));
+            paint.setShadowLayer(bRadius, 0, 3, Color.parseColor("#0F000000"));
             paint.setShader(shadowGradient);
             //paint.setShader(sweepGradient) ;
             canvas.drawPath(bPath, paint);
@@ -483,57 +482,5 @@ public class SwitchView extends View {
         this.listener = listener;
     }
 
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState ss = new SavedState(superState);
-        ss.isOpened = isOpened;
-        return ss;
-    }
 
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState) state;
-        super.onRestoreInstanceState(ss.getSuperState());
-        this.isOpened = ss.isOpened;
-        this.state = this.isOpened ? STATE_SWITCH_ON : STATE_SWITCH_OFF;
-        invalidate();
-    }
-
-    private static final class SavedState extends BaseSavedState {
-        private boolean isOpened;
-
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        private SavedState(Parcel in) {
-            super(in);
-            isOpened = 1 == in.readInt();
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeInt(isOpened ? 1 : 0);
-        }
-
-        // fixed by Night99 https://github.com/g19980115
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
 }
