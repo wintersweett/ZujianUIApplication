@@ -123,6 +123,7 @@
             android:layout_height="wrap_content"/>
     </com.example.zujianapplication.CornerLayoutView>
     <com.example.zujianapplication.FlowLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
@@ -151,6 +152,9 @@
             android:layout_width="20dp"
             android:layout_height="80dp"/>
     </com.example.zujianapplication.FlowLayout>
+    <com.example.zujianapplication.ShaderView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:id="@+id/tv"

@@ -10,10 +10,12 @@ import android.graphics.Path;
 import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.SweepGradient;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,7 +40,7 @@ public class SwitchView extends View {
     private final RectF bRectF = new RectF();
     private float sAnim, bAnim;
     private RadialGradient shadowGradient;
-
+    //按钮宽高形状比率(0,1] 不推荐大幅度调整
     protected float ratioAspect = 0.68f; // (0,1]
     protected float animationSpeed = 0.1f; // (0,1]
 
@@ -46,10 +48,15 @@ public class SwitchView extends View {
     private int lastState;
     private boolean isCanVisibleDrawing = false;
     private OnClickListener mOnClickListener;
+    //开启状态背景色
     protected int colorPrimary;
+    //开启状态按钮描边色
     protected int colorPrimaryDark;
+    //关闭状态描边色
     protected int colorOff;
+    //关闭状态按钮描边色
     protected int colorOffDark;
+    //按钮阴影色
     protected int colorShadow;
     protected int colorBar;
     protected int colorBackground;
@@ -68,24 +75,29 @@ public class SwitchView extends View {
     private float bOnLeftX, bOn2LeftX, bOff2LeftX, bOffLeftX;
 
     private float shadowReservedHeight;
+    //里面小圆圈 相对于外面椭圆的距离；
+    private float offsetBtoS;
+    private boolean canTouch = true;
 
     public SwitchView(Context context) {
         this(context, null);
     }
-
+    public void setCanTouchSwitch(boolean canTouch) {
+        this.canTouch = canTouch;
+    }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public SwitchView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setLayerType(LAYER_TYPE_SOFTWARE, null);
 
-        final int DEFAULT_COLOR_PRIMARY = 0xFF4BD763;
+        final int DEFAULT_COLOR_PRIMARY = 0xFFFF6400;
         final int DEFAULT_COLOR_PRIMARY_DARK = 0xFFFFFFFF;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SwitchView);
         colorPrimary = a.getColor(R.styleable.SwitchView_primaryColor, DEFAULT_COLOR_PRIMARY);
         colorPrimaryDark = a.getColor(R.styleable.SwitchView_primaryColorDark, DEFAULT_COLOR_PRIMARY_DARK);
-        colorOff = a.getColor(R.styleable.SwitchView_offColor, 0xFFE3E3E3);
-        colorOffDark = a.getColor(R.styleable.SwitchView_offColorDark, 0xFFBFBFBF);
+        colorOff = a.getColor(R.styleable.SwitchView_offColor, 0xFFEEEEEE);
+        colorOffDark = a.getColor(R.styleable.SwitchView_offColorDark, 0x00000000);
         colorShadow = a.getColor(R.styleable.SwitchView_shadowColor, 0xFF333333);
         colorBar = a.getColor(R.styleable.SwitchView_barColor, 0xFFFFFFFF);
         colorBackground = a.getColor(R.styleable.SwitchView_bgColor, 0xFFEEEEEE);
@@ -94,6 +106,7 @@ public class SwitchView extends View {
         isOpened = a.getBoolean(R.styleable.SwitchView_isOpened, false);
         state = isOpened ? STATE_SWITCH_ON : STATE_SWITCH_OFF;
         lastState = state;
+        offsetBtoS = a.getFloat(R.styleable.SwitchView_offsetBtoS, 2);
         a.recycle();
 
         if (colorPrimary == DEFAULT_COLOR_PRIMARY && colorPrimaryDark == DEFAULT_COLOR_PRIMARY_DARK) {
@@ -262,6 +275,7 @@ public class SwitchView extends View {
             sScale = 1 - bStrokeWidth / sHeight;
 
             sPath.reset();
+            //椭圆
             RectF sRectF = new RectF();
             sRectF.top = sTop;
             sRectF.bottom = sBottom;
@@ -273,28 +287,31 @@ public class SwitchView extends View {
             sPath.arcTo(sRectF, 270, 180);
             sPath.close();
 
-            bRectF.left = bLeft;
-            bRectF.right = bRight;
-            bRectF.top = sTop + bStrokeWidth / 2;  // bTop = sTop
-            bRectF.bottom = sBottom - bStrokeWidth / 2; // bBottom = sBottom
+            //圆
+            bRectF.left = bLeft + offsetBtoS;
+            bRectF.right = bRight - offsetBtoS;
+            bRectF.top = sTop + bStrokeWidth / 2 + offsetBtoS;  // bTop = sTop
+            bRectF.bottom = sBottom - bStrokeWidth / 2 - offsetBtoS; // bBottom = sBottom
             float bCenterX = (bRight + bLeft) / 2;
             float bCenterY = (sBottom + sTop) / 2;
-
-            int red = colorShadow >> 16 & 0xFF;
-            int green = colorShadow >> 8 & 0xFF;
-            int blue = colorShadow & 0xFF;
-            shadowGradient = new RadialGradient(bCenterX, bCenterY, bRadius, Color.argb(200, red, green, blue),
-                    Color.argb(25, red, green, blue), Shader.TileMode.CLAMP);
+            shadowGradient = new RadialGradient(bCenterX, bCenterY, bRadius, Color.parseColor("#26000000"),
+                    Color.parseColor("#26000000"), Shader.TileMode.CLAMP);
         }
     }
 
+    /**
+     * @Description 画里面的圆圈⭕️
+     * @author WinterSweett
+     */
     private void calcBPath(float percent) {
+        Log.d("ws", "calcBPath: percent:" + percent + "  " + bOffset);
         bPath.reset();
-        bRectF.left = bLeft + bStrokeWidth / 2;
-        bRectF.right = bRight - bStrokeWidth / 2;
+        bRectF.left = bLeft + bStrokeWidth / 2 + offsetBtoS;
+        bRectF.right = bRight - bStrokeWidth / 2 - offsetBtoS;
+        Log.d("ws", "calcBPath: " + bRectF.left + "  " + bRectF.right + "  " + bLeft + "  " + bRight + "  " + bStrokeWidth);
         bPath.arcTo(bRectF, 90, 180);
-        bRectF.left = bLeft + percent * bOffset + bStrokeWidth / 2;
-        bRectF.right = bRight + percent * bOffset - bStrokeWidth / 2;
+        bRectF.left = bLeft + percent * bOffset + bStrokeWidth / 2 + offsetBtoS;
+        bRectF.right = bRight + percent * bOffset - bStrokeWidth / 2 - offsetBtoS;
         bPath.arcTo(bRectF, 270, 180);
         bPath.close();
     }
@@ -358,6 +375,7 @@ public class SwitchView extends View {
         // Draw background
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(isOn ? colorPrimary : colorOff);
+        //sPath 画的打开情况下的：背景椭圆
         canvas.drawPath(sPath, paint);
 
         sAnim = sAnim - animationSpeed > 0 ? sAnim - animationSpeed : 0;
@@ -371,6 +389,7 @@ public class SwitchView extends View {
         canvas.save();
         canvas.scale(scale, scale, sCenterX + scaleOffset, sCenterY);
         paint.setColor(colorBackground);
+        //此时画的 关闭情况下的 背景椭圆
         canvas.drawPath(sPath, paint);
         canvas.restore();
         // To prepare center bar path
@@ -381,7 +400,9 @@ public class SwitchView extends View {
         // Use center bar path to draw shadow
         if (hasShadow) {
             paint.setStyle(Paint.Style.FILL);
+            paint.setShadowLayer(bRadius,0,3,Color.parseColor("#0F000000"));
             paint.setShader(shadowGradient);
+            //paint.setShader(sweepGradient) ;
             canvas.drawPath(bPath, paint);
             paint.setShader(null);
         }
@@ -390,10 +411,12 @@ public class SwitchView extends View {
         canvas.scale(0.98f, 0.98f, bWidth / 2, bWidth / 2);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(colorBar);
+        //bPath 此时画的 圆圈按钮⭕️
         canvas.drawPath(bPath, paint);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(bStrokeWidth * 0.5f);
         paint.setColor(isOn ? colorPrimaryDark : colorOffDark);
+        //bPath 此时画的 圆圈⭕️的外边框
         canvas.drawPath(bPath, paint);
         canvas.restore();
 
@@ -408,6 +431,9 @@ public class SwitchView extends View {
                 case MotionEvent.ACTION_DOWN:
                     return true;
                 case MotionEvent.ACTION_UP:
+                    if (!canTouch) {
+                        break;
+                    }
                     lastState = state;
 
                     bAnim = 1;
